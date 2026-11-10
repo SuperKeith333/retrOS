@@ -16,5 +16,4 @@ qemu-system-x86_64 \
 	-cdrom "$ISO" \
 	-boot d \
 	-serial stdio \
-	-drive format=raw,file=build-uefi/esp.img \
 	-net none
