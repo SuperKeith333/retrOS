@@ -1,0 +1,42 @@
+# CMake build directories
+build/
+build-uefi/
+cmake-build-*/
+
+# Compiled binaries and objects
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.efi
+*.EFI
+*.elf
+*.bin
+
+# Generated dependencies
+*.d
+*.P
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# Generated disk images and ISOs
+*.iso
+*.img
+*.raw
+*.qcow2
+
+# Debug symbols
+*.pdb
+*.debug
+
+# Editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

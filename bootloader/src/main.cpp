@@ -1,0 +1,1 @@
+extern "C" void efi_main() { while (1) {}}
