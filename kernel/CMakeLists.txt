@@ -6,9 +6,9 @@ set(KERNEL_IMAGE "${CMAKE_CURRENT_BINARY_DIR}/kernel.elf")
 # CMake-managed compilation
 add_library(kernel_obj OBJECT
 	src/main.cpp
+    src/gdt/gdt.cpp
+    src/misc/memory.cpp
 )
-
-file(GLOB SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 target_compile_features(kernel_obj PRIVATE cxx_std_23)
 
@@ -38,10 +38,10 @@ add_custom_command(
         $<TARGET_OBJECTS:kernel_obj>
     DEPENDS
         kernel_obj
-        "{SOURCES}"
         $<TARGET_OBJECTS:kernel_obj>
         "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
     COMMENT "Building kernel"
+    COMMAND_EXPAND_LISTS
     VERBATIM
 )
 
