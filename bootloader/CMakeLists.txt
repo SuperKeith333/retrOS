@@ -2,48 +2,42 @@
 find_program(LLD_EXECUTABLE NAMES ld.lld REQUIRED)
 find_program(OBJCOPY_EXECUTABLE NAMES objcopy REQUIRED)
 
-set(BOOTLOADER_SOURCE
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
+set(BOOTLOADER_ELF "${CMAKE_CURRENT_BINARY_DIR}/bootloader.so")
+set(BOOTLOADER_IMAGE "${CMAKE_CURRENT_BINARY_DIR}/BOOTX64.EFI")
+
+set(GNU_EFI_LINKER_SCRIPT "/usr/lib/elf_x86_64_efi.lds")
+set(GNU_EFI_CRT "/usr/lib/crt0-efi-x86_64.o")
+
+# CMake-managed compilation
+add_library(bootloader_obj OBJECT
+	src/main.cpp
 )
 
-set(BOOTLOADER_OBJECT
-	"${CMAKE_CURRENT_BINARY_DIR}/main.o"
+target_compile_features(bootloader_obj PRIVATE cxx_std_23)
+
+target_compile_options(bootloader_obj PRIVATE
+	-ffreestanding
+	-fpic
+	-fshort-wchar
+	-fno-exceptions
+	-fno-rtti
+	-fno-stack-protector
+	-mno-red-zone
 )
 
-set(BOOTLOADER_ELF
-	"${CMAKE_CURRENT_BINARY_DIR}/bootloader.so"
+target_compile_definitions(bootloader_obj PRIVATE
+	GNU_EFI_USE_MS_ABI
 )
 
-set(BOOTLOADER_IMAGE
-	"${CMAKE_CURRENT_BINARY_DIR}/BOOTX64.EFI"
+target_include_directories(bootloader_obj PRIVATE
+	/usr/include/efi
+	/usr/include/efi/x86_64
+	"${SHARED_INCLUDE_DIR}"
 )
 
-set(GNU_EFI_LINKER_SCRIPT
-	"/usr/lib/elf_x86_64_efi.lds"
-)
-
-set(GNU_EFI_CRT
-	"/usr/lib/crt0-efi-x86_64.o"
-)
-
+# Link and convert to EFI
 add_custom_command(
 	OUTPUT "${BOOTLOADER_IMAGE}"
-
-	COMMAND "${CMAKE_CXX_COMPILER}"
-		-std=c++23
-		-target x86_64-unknown-linux-gnu
-		-ffreestanding
-		-fpic
-		-fshort-wchar
-		-fno-exceptions
-		-fno-rtti
-		-fno-stack-protector
-		-mno-red-zone
-		-DGNU_EFI_USE_MS_ABI
-		-I/usr/include/efi
-		-I/usr/include/efi/x86_64
-		-c "${BOOTLOADER_SOURCE}"
-		-o "${BOOTLOADER_OBJECT}"
 
 	COMMAND "${LLD_EXECUTABLE}"
 		-nostdlib
@@ -53,7 +47,7 @@ add_custom_command(
 		-Bsymbolic
 		-L/usr/lib
 		"${GNU_EFI_CRT}"
-		"${BOOTLOADER_OBJECT}"
+		$<TARGET_OBJECTS:bootloader_obj>
 		-lgnuefi
 		-lefi
 		-o "${BOOTLOADER_ELF}"
@@ -74,7 +68,8 @@ add_custom_command(
 		"${BOOTLOADER_IMAGE}"
 
 	DEPENDS
-		"${BOOTLOADER_SOURCE}"
+		bootloader_obj
+		$<TARGET_OBJECTS:bootloader_obj>
 		"${GNU_EFI_LINKER_SCRIPT}"
 		"${GNU_EFI_CRT}"
 		"/usr/lib/libgnuefi.a"

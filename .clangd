@@ -1,5 +1,0 @@
-CompileFlags:
-  Add:
-    - -I/usr/include
-    - -I/usr/include/efi/x86_64
-    - --target=x86_64-pc-win32-coff
