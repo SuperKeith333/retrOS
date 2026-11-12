@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstddef>
 #include <cstdint>
 
@@ -24,13 +26,13 @@ namespace RplConstants {
     constexpr uint8_t RPL3 = 3;
 }
 
-constexpr uint8_t KERNEL_CODE_DESCRIPTOR = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::EXECUTABLE | AccessByte::READ_WRITE | AccessByte::RING0);
-constexpr uint8_t KERNEL_DATA_DESCRIPTOR = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::READ_WRITE | AccessByte::RING0);
-constexpr uint8_t USER_CODE_DESCRIPTOR = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::EXECUTABLE | AccessByte::READ_WRITE | AccessByte::RING3);
-constexpr uint8_t USER_DATA_DESCRIPTOR = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::READ_WRITE | AccessByte::RING3);
-constexpr uint8_t TSS_DESCRIPTOR = (AccessByte::PRESENT | AccessByte::RING0 | AccessByte::AVAILABLE_TSS);
-constexpr uint8_t CODE_FLAG_DESCRIPTOR = (GdtFlags::GRANULARITY | GdtFlags::LONG_MODE);
-constexpr uint8_t DATA_FLAG_DESCRIPTOR = (GdtFlags::GRANULARITY | GdtFlags::SIZE);
+constexpr uint8_t KERNEL_CODE_ACCESS = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::EXECUTABLE | AccessByte::READ_WRITE | AccessByte::RING0);
+constexpr uint8_t KERNEL_DATA_ACCESS = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::READ_WRITE | AccessByte::RING0);
+constexpr uint8_t USER_CODE_ACCESS = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::EXECUTABLE | AccessByte::READ_WRITE | AccessByte::RING3);
+constexpr uint8_t USER_DATA_ACCESS = (AccessByte::PRESENT | AccessByte::DESCRIPTOR_TYPE | AccessByte::READ_WRITE | AccessByte::RING3);
+constexpr uint8_t TSS_ACCESS = (AccessByte::PRESENT | AccessByte::RING0 | AccessByte::AVAILABLE_TSS);
+constexpr uint8_t CODE_FLAG_ACCESS = (GdtFlags::GRANULARITY | GdtFlags::LONG_MODE);
+constexpr uint8_t DATA_FLAG_ACCESS = (GdtFlags::GRANULARITY | GdtFlags::SIZE);
 
 struct GdtEntry {
     uint16_t lowerLimit;
@@ -86,13 +88,13 @@ static_assert(sizeof(GdtEntry) == 8, "GDT Entry Size is Incorrect!");
 static_assert(sizeof(GdtPointer) == 10, "LGDT Size is Incorrect!");
 static_assert(sizeof(TssDescriptor) == 16, "TSS Descriptor Size is Incorrect!");
 static_assert(sizeof(Tss) == 104, "TSS Size is Incorrect!");
-static_assert(KERNEL_CODE_DESCRIPTOR == 0x9A, "Incorrect Kernel Code Byte");
-static_assert(KERNEL_DATA_DESCRIPTOR == 0x92, "Incorrect Kernel Data Byte");
-static_assert(USER_CODE_DESCRIPTOR == 0xFA, "Incorrect User Code Byte");
-static_assert(USER_DATA_DESCRIPTOR == 0xF2, "Incorrect User Data Byte");
-static_assert(TSS_DESCRIPTOR == 0x89, "Incorrect TSS Byte");
-static_assert(CODE_FLAG_DESCRIPTOR == 0xA0, "Incorrect Code Flags");
-static_assert(DATA_FLAG_DESCRIPTOR == 0xC0, "Incorrect Data Flags");
+static_assert(KERNEL_CODE_ACCESS == 0x9A, "Incorrect Kernel Code Byte");
+static_assert(KERNEL_DATA_ACCESS == 0x92, "Incorrect Kernel Data Byte");
+static_assert(USER_CODE_ACCESS == 0xFA, "Incorrect User Code Byte");
+static_assert(USER_DATA_ACCESS == 0xF2, "Incorrect User Data Byte");
+static_assert(TSS_ACCESS == 0x89, "Incorrect TSS Byte");
+static_assert(CODE_FLAG_ACCESS == 0xA0, "Incorrect Code Flags");
+static_assert(DATA_FLAG_ACCESS == 0xC0, "Incorrect Data Flags");
 static_assert(sizeof(Gdt) == 56, "Incorrect Gdt Size");
 static_assert(KERNEL_CODE_SELECTOR == 0x08, "Incorrect Kernel Code Offset");
 static_assert(KERNEL_DATA_SELECTOR == 0x10, "Incorrect Kernel Data Offset");
@@ -102,4 +104,5 @@ static_assert(TSS_DESCRIPTOR_SELECTOR == 0x28, "Incorrect Tss Descriptor Offset"
 
 GdtEntry create_gdt_entry(uint8_t accessByte, uint32_t limit, uint8_t flags);
 TssDescriptor create_tss_descriptor(uint64_t* tssAddress);
-void initialize_tss(uint64_t kernelStackTop);
+void initialize_tss(uint64_t kernelStackTop, uint64_t doubleFaultStackTop);
+void gdt_init(uint64_t kernelStackTop, uint64_t doubleFaultStackTop);

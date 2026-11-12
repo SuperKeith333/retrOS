@@ -16,4 +16,5 @@ qemu-system-x86_64 \
 	-cdrom "$ISO" \
 	-boot d \
 	-serial stdio \
-	-net none
+	-net none \
+	-d int,cpu_reset -no-reboot

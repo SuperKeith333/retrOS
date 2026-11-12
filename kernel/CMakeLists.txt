@@ -8,6 +8,10 @@ add_library(kernel_obj OBJECT
 	src/main.cpp
     src/gdt/gdt.cpp
     src/misc/memory.cpp
+    src/idt/idt.cpp
+    src/pic/pic.cpp
+    src/io/keyboard.cpp
+    src/renderer/renderer.cpp
 )
 
 target_compile_features(kernel_obj PRIVATE cxx_std_23)
@@ -16,9 +20,11 @@ target_compile_options(kernel_obj PRIVATE
 	-ffreestanding
 	-fno-exceptions
 	-fno-rtti
+    -fno-threadsafe-statics
 	-fno-stack-protector
 	-fno-pic
 	-mno-red-zone
+    -mgeneral-regs-only
 )
 
 target_include_directories(kernel_obj PRIVATE

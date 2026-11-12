@@ -170,6 +170,26 @@ extern "C" EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemT
         return status;
     }
 
+    UINTN numModes = gop->Mode->MaxMode;
+    UINTN targetMode = 0;
+    BOOLEAN found = FALSE;
+
+    for (UINTN i = 0; i < numModes; i++) {
+        EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info;
+        UINTN sizeOfInfo;
+        
+        status = gop->QueryMode(gop, i, &sizeOfInfo, &info);
+        if (!EFI_ERROR(status)) {
+            // Example: Looking for 1024 x 768
+            if (info->HorizontalResolution == 1024 && info->VerticalResolution == 768) {
+                targetMode = i;
+                found = TRUE;
+                // Note: Free 'info' pool buffer if allocated by firmware (depends on EDK2 convention)
+                break;
+            }
+        }
+    }
+
     uint64_t bufferSize = gop->Mode->Info->HorizontalResolution * gop->Mode->Info->VerticalResolution * sizeof(unsigned int);
     uint64_t pagesNeeded = (bufferSize + 4095) / 4096;
 
@@ -221,6 +241,7 @@ extern "C" EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemT
     
     BootInfo bInfo = {};
     bInfo.frontBuffer = (unsigned int*)gop->Mode->FrameBufferBase;
+    bInfo.backBuffer = (uint32_t*)backBufferAddress;
     bInfo.screenWidth = gop->Mode->Info->HorizontalResolution;
     bInfo.screenHeight = gop->Mode->Info->VerticalResolution;
     bInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
