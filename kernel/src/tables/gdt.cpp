@@ -1,4 +1,4 @@
-#include "gdt/gdt.h"
+#include "tables/gdt.h"
 
 static Tss tss;
 alignas(16) static Gdt gdt;

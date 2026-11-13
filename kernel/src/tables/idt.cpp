@@ -1,4 +1,4 @@
-#include "idt/idt.h"
+#include "tables/idt.h"
 #include "io.h"
 #include "io/keyboard.h"
 #include "renderer/renderer.h"
@@ -29,6 +29,12 @@ void set_idt_gate(uint8_t index, uint64_t handlerAddress, uint8_t istIndex, uint
 __attribute__((interrupt)) void int0Handler(ExceptionValues* values) {
     // Divide Error - report Rip from values then halt
 
+    renderer->clear(0);
+    cursor_x = 590; cursor_y = 100; renderer->print("Divide Error!", 0xFFFFFF);
+    cursor_x = 480; cursor_y = 120; renderer->print("Address of faulting instruction: ", 0xFFFFFF);
+    cursor_x = 750; cursor_y = 120; renderer->print_int(values->Rip, 0xFFFFFF);
+    renderer->blit();
+
     for (;;) asm volatile("hlt");
 }
 
@@ -46,18 +52,35 @@ __attribute__((interrupt)) void int3Handler(ExceptionValues* values) {
 __attribute__((interrupt)) void int6Handler(ExceptionValues* values) {
     // Invalid Optcode - report Rip and halt
 
+    renderer->clear(0);
+    cursor_x = 590; cursor_y = 100; renderer->print("Invaid Optcode!", 0xFFFFFF);
+    cursor_x = 480; cursor_y = 120; renderer->print("Address of faulting instruction: ", 0xFFFFFF);
+    cursor_x = 750; cursor_y = 120; renderer->print_int(values->Rip, 0xFFFFFF);
+    renderer->blit();
+
     for (;;) asm volatile("hlt");
 }
 
 __attribute__((interrupt)) void int8Handler(ExceptionValues* values, uint64_t errorCode) {
     // Double Fault - report, halt, never return
 
+    renderer->clear(0);
+    cursor_x = 590; cursor_y = 100; renderer->print("Double Fault!", 0xFFFFFF);
+    renderer->blit();
 
     for (;;) asm volatile("hlt");
 }
 
 __attribute__((interrupt)) void int13Handler(ExceptionValues* values, uint64_t errorCode) {
     // General Protection - report Rip and errorCode, halt
+
+    renderer->clear(0);
+    cursor_x = 590; cursor_y = 100; renderer->print("General Protection!", 0xFFFFFF);
+    cursor_x = 480; cursor_y = 120; renderer->print("Address of faulting instruction: ", 0xFFFFFF);
+    cursor_x = 750; cursor_y = 120; renderer->print_int(values->Rip, 0xFFFFFF);
+    cursor_x = 600; cursor_y = 140; renderer->print("Error Code:", 0xFFFFFF);
+    cursor_x = 700; cursor_y = 140; renderer->print_int(errorCode, 0xFFFFFF);
+    renderer->blit();
 
     for (;;) asm volatile("hlt");
 }
@@ -66,6 +89,16 @@ __attribute__((interrupt)) void int14Handler(ExceptionValues* values, uint64_t e
     // Page Fault - report Rip, error code, and cr2, halt
     uint64_t cr2;
     asm volatile("mov %%cr2, %0" : "=r"(cr2));
+
+    renderer->clear(0);
+    cursor_x = 590; cursor_y = 100; renderer->print("Page Fault!", 0xFFFFFF);
+    cursor_x = 480; cursor_y = 120; renderer->print("Address of faulting instruction: ", 0xFFFFFF);
+    cursor_x = 750; cursor_y = 120; renderer->print_int(values->Rip, 0xFFFFFF);
+    cursor_x = 580; cursor_y = 140; renderer->print("Error Code:", 0xFFFFFF);
+    cursor_x = 680; cursor_y = 140; renderer->print_int(errorCode, 0xFFFFFF);
+    cursor_x = 580; cursor_y = 160; renderer->print("CR2:", 0xFFFFFF);
+    cursor_x = 620; cursor_y = 160; renderer->print_int(cr2, 0xFFFFFF);
+    renderer->blit();
 
     for (;;) asm volatile("hlt");
 }

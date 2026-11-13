@@ -1,9 +1,10 @@
 #include "boot_info.h"
-#include "gdt/gdt.h"
-#include "idt/idt.h"
-#include "pic/pic.h"
+#include "tables/gdt.h"
+#include "tables/idt.h"
+#include "io/pic.h"
 #include "io/keyboard.h"
 #include "renderer/renderer.h"
+#include "memory/memory_manager.h"
 
 constexpr uint16_t KERNEL_STACK_SIZE = 16384;
 constexpr uint16_t DOUBLE_FAULT_STACK_SIZE = 8192;
@@ -19,15 +20,20 @@ extern "C" [[noreturn]] void kernel_main(BootInfo* binfo) {
     asm volatile("sti");
 
     Renderer _renderer(binfo);
-    
+    MemoryManager _memManager(binfo);
+
+    memManager = &_memManager;
 	renderer = &_renderer;
+
+    MemoryAccess memAccess = memManager->allocate_physical_page();
+    memManager->free_physical_page(memAccess);
+
     renderer->clear(0xFFF);
-    cursor_x = 100;
-    cursor_y = 100;
-    renderer->print("Testing 1, 2, 3", 0);
+    cursor_x = 100; cursor_y = 100; renderer->print_int(memAccess.address, 0);
+    cursor_x = 100; cursor_y = 120; renderer->print_int(memAccess.key, 0);
+    cursor_x = 100; cursor_y = 140; renderer->print_int(memAccess.pages, 0);
     renderer->blit();
 
-    asm volatile("int3");
 
     while (1) {
         if (keyboard.poll_event() != 0x00) {

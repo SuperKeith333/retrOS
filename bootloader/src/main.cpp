@@ -245,6 +245,9 @@ extern "C" EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemT
     bInfo.screenWidth = gop->Mode->Info->HorizontalResolution;
     bInfo.screenHeight = gop->Mode->Info->VerticalResolution;
     bInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
+    bInfo.memoryMap = (MemoryMapEntry*)MemMap;
+    bInfo.memoryMapSize = MapSize;
+    bInfo.descriptorSize = DescriptorSize;
     
     start_kernel(&bInfo);
     for (;;) asm volatile("hlt");

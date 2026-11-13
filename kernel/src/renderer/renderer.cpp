@@ -46,3 +46,19 @@ void Renderer::print(const char* str, uint32_t color) {
         str++;
     }
 }
+
+void Renderer::print_int(unsigned long long num, uint32_t color) {
+    char buffer[21];
+    int i = 19;
+    buffer[20] = '\0';
+    
+    if (num == 0) {
+        buffer[i--] = '0';
+    } else {
+        while (num > 0 && i >= 0) {
+            buffer[i--] = (num % 10) + '0';
+            num /= 10;
+        }
+    }
+    print(&buffer[i + 1], color);
+}

@@ -10,6 +10,7 @@ public:
     void clear(uint32_t color);
     void putchar(char c, uint32_t color);
     void print(const char* str, uint32_t color);
+    void print_int(unsigned long long num, uint32_t color);
 
 private:
     uint32_t* frontBuffer;

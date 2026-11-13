@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "gdt/gdt.h"
+#include "gdt.h"
 
 namespace IdtGates {
     constexpr uint8_t INTERRUPT_GATE = 0xE;

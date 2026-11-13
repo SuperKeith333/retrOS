@@ -6,12 +6,13 @@ set(KERNEL_IMAGE "${CMAKE_CURRENT_BINARY_DIR}/kernel.elf")
 # CMake-managed compilation
 add_library(kernel_obj OBJECT
 	src/main.cpp
-    src/gdt/gdt.cpp
+    src/tables/gdt.cpp
     src/misc/memory.cpp
-    src/idt/idt.cpp
-    src/pic/pic.cpp
+    src/tables/idt.cpp
+    src/io/pic.cpp
     src/io/keyboard.cpp
     src/renderer/renderer.cpp
+    src/memory/memory_manager.cpp
 )
 
 target_compile_features(kernel_obj PRIVATE cxx_std_23)
